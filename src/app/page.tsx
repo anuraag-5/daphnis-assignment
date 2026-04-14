@@ -1,65 +1,46 @@
-import Image from "next/image";
+import Controls from '@/components/Controls'
+import PlinkoBoard from '@/components/PlinkoBoard'
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen flex flex-col pt-10 px-4 max-w-7xl mx-auto">
+      <header className="flex items-center justify-between pb-8 border-b border-zinc-800 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">Plinko Lab</h1>
+          <p className="text-zinc-500 text-sm mt-1">Provably Fair Deterministic Gameplay</p>
+        </div>
+        <nav className="flex space-x-4">
+          <Link href="/verify" className="px-4 py-2 border border-zinc-700 rounded-lg text-sm font-medium hover:bg-zinc-800 transition">
+            ⚖️ Verifier
+          </Link>
+        </nav>
+      </header>
+
+      <div className="flex flex-col-reverse lg:flex-row gap-8 items-center lg:items-start justify-center">
+        {/* Left: Controls */}
+        <div className="w-full lg:w-96 flex-shrink-0">
+          <Controls />
+          
+          <div className="mt-8 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
+            <h3 className="font-semibold text-zinc-300 mb-2 text-sm uppercase tracking-wider">How to play</h3>
+            <ul className="text-sm text-zinc-500 space-y-2">
+              <li>1. Choose your Bet amount.</li>
+              <li>2. Adjust the drop column (0-12) to influence bias.</li>
+              <li>3. Click Drop to generate a provably fair result.</li>
+              <li>4. Use the Verifier to mathematically prove the game.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Right: Board */}
+        <div className="flex-grow flex flex-col items-center w-full">
+          <PlinkoBoard />
+          <p className="mt-8 text-zinc-500 text-sm text-center max-w-sm">
+            Curious about the maths? Click on <strong className="text-zinc-300">Verifier</strong> at the top of the page to view your past rounds and mathematically verify their fairness.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+      </div>
+    </main>
+  )
 }
