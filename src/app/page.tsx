@@ -7,7 +7,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col pt-10 px-4 max-w-7xl mx-auto">
       <header className="flex items-center justify-between pb-8 border-b border-zinc-800 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">Plinko Lab</h1>
+          <h1 className="text-3xl font-extrabold bg-linear-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">Plinko Lab</h1>
           <p className="text-zinc-500 text-sm mt-1">Provably Fair Deterministic Gameplay</p>
         </div>
         <nav className="flex space-x-4">
@@ -19,9 +19,9 @@ export default function Home() {
 
       <div className="flex flex-col-reverse lg:flex-row gap-8 items-center lg:items-start justify-center">
         {/* Left: Controls */}
-        <div className="w-full lg:w-96 flex-shrink-0">
+        <div className="w-full lg:w-96 shrink-0">
           <Controls />
-          
+
           <div className="mt-8 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
             <h3 className="font-semibold text-zinc-300 mb-2 text-sm uppercase tracking-wider">How to play</h3>
             <ul className="text-sm text-zinc-500 space-y-2">
@@ -34,7 +34,7 @@ export default function Home() {
         </div>
 
         {/* Right: Board */}
-        <div className="flex-grow flex flex-col items-center w-full">
+        <div className="grow flex flex-col items-center w-full">
           <PlinkoBoard />
           <p className="mt-8 text-zinc-500 text-sm text-center max-w-sm">
             Curious about the maths? Click on <strong className="text-zinc-300">Verifier</strong> at the top of the page to view your past rounds and mathematically verify their fairness.

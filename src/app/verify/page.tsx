@@ -34,7 +34,7 @@ function VerifyFormContent() {
     } else {
       const saved = sessionStorage.getItem('verifyForm');
       if (saved) {
-        try { setForm(JSON.parse(saved)); } catch(e) {}
+        try { setForm(JSON.parse(saved)); } catch (e) { }
       }
     }
   }, [searchParams]);
@@ -65,11 +65,11 @@ function VerifyFormContent() {
   return (
     <main className="min-h-screen bg-zinc-950 p-6 md:p-12">
       <div className="max-w-4xl mx-auto space-y-8">
-        
+
         <Link href="/" className="inline-flex items-center text-zinc-400 hover:text-white transition">
           <ArrowLeft size={16} className="mr-2" /> Back to Game
         </Link>
-        
+
         <div>
           <h1 className="text-3xl font-extrabold text-white">Provably Fair Verifier</h1>
           <p className="text-zinc-500 mt-2">Recompute mathematical outcomes to prove that no rounds were tampered with.</p>
@@ -80,23 +80,23 @@ function VerifyFormContent() {
           <form onSubmit={handleSubmit} className="space-y-4 bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
             <div>
               <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Server Seed (Revealed)</label>
-              <input required value={form.serverSeed} onChange={e => setForm({...form, serverSeed: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm font-mono text-zinc-300" placeholder="e.g. b2a5f3..." />
+              <input required value={form.serverSeed} onChange={e => setForm({ ...form, serverSeed: e.target.value })} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm font-mono text-zinc-300" placeholder="e.g. b2a5f3..." />
             </div>
             <div>
               <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Client Seed</label>
-              <input required value={form.clientSeed} onChange={e => setForm({...form, clientSeed: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm text-zinc-300" placeholder="candidate-hello" />
+              <input required value={form.clientSeed} onChange={e => setForm({ ...form, clientSeed: e.target.value })} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm text-zinc-300" placeholder="candidate-hello" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Nonce</label>
-                <input required value={form.nonce} onChange={e => setForm({...form, nonce: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm font-mono text-zinc-300" placeholder="42" />
+                <input required value={form.nonce} onChange={e => setForm({ ...form, nonce: e.target.value })} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm font-mono text-zinc-300" placeholder="42" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Drop Column</label>
-                <input required type="number" min="0" max="12" value={form.dropColumn} onChange={e => setForm({...form, dropColumn: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm text-zinc-300" />
+                <input required type="number" min="0" max="12" value={form.dropColumn} onChange={e => setForm({ ...form, dropColumn: e.target.value })} className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-sm text-zinc-300" />
               </div>
             </div>
-            
+
             <button disabled={loading} type="submit" className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition disabled:opacity-50">
               {loading ? 'Verifying...' : 'Verify Now'}
             </button>
@@ -106,11 +106,11 @@ function VerifyFormContent() {
           {/* Results */}
           <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl flex flex-col">
             <h3 className="text-lg font-bold text-white mb-6 border-b border-zinc-800 pb-4">Verification Result</h3>
-            
+
             {result ? (
-              <div className="space-y-6 flex-grow">
+              <div className="space-y-6 grow">
                 <div className="flex items-start space-x-3 text-emerald-400">
-                  <CheckCircle2 className="flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-emerald-400">Deterministically Verified</h4>
                     <p className="text-zinc-400 text-xs mt-1">Hashes and outcomes successfully matched the deterministic PRNG engine.</p>
@@ -140,12 +140,12 @@ function VerifyFormContent() {
                 </div>
               </div>
             ) : (
-               <div className="flex-grow flex flex-col items-center justify-center text-zinc-600">
-                 <div className="w-16 h-16 border-2 border-dashed border-zinc-700 rounded-full flex items-center justify-center mb-4">
-                   <div className="w-2 h-2 bg-zinc-700 rounded-full" />
-                 </div>
-                 <p className="text-sm">Submit inputs to verify round</p>
-               </div>
+              <div className="grow flex flex-col items-center justify-center text-zinc-600">
+                <div className="w-16 h-16 border-2 border-dashed border-zinc-700 rounded-full flex items-center justify-center mb-4">
+                  <div className="w-2 h-2 bg-zinc-700 rounded-full" />
+                </div>
+                <p className="text-sm">Submit inputs to verify round</p>
+              </div>
             )}
           </div>
         </div>
