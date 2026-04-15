@@ -59,7 +59,7 @@ export function buildPegMap(combinedSeedHex: string, rows: number = 12) {
 
 export function simulatePath(pegMap: number[][], prng: Xorshift32, dropColumn: number, rows: number = 12) {
   let pos = 0;
-  const adj = (dropColumn - Math.floor(rows / 2)) * 0.01;
+  const adj = (Math.floor(rows / 2) - dropColumn) * 0.01;
   const path: number[] = []; // store 0 (Left) or 1 (Right)
   
   for (let r = 0; r < rows; r++) {

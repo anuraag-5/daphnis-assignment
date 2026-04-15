@@ -8,7 +8,6 @@ export async function POST() {
   try {
     // Generate serverSeed (hidden) and nonce
     const serverSeed = crypto.randomBytes(32).toString('hex');
-    const nonce = '1'; // A real app might increment per user, but for MVP scope a constant or a random string is acceptable per round. Let's make it random string to be safe.
     const actualNonce = crypto.randomBytes(8).toString('hex');
     
     const commitHex = generateCommitHex(serverSeed, actualNonce);

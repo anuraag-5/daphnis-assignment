@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useGameStore } from '../lib/store';
+import { useEasterEggs } from '../lib/easterEggs';
 import confetti from 'canvas-confetti';
 import { PAYOUT_MULTIPLIERS } from '../lib/fairness';
 
@@ -13,8 +14,12 @@ const START_Y = -40;
 
 export default function PlinkoBoard() {
   const { status, path, binIndex, finishAnimation, history } = useGameStore();
+  const { tiltMode, tiltAngle, goldenBall, toggleTilt, checkGoldenBall } = useEasterEggs();
   const ballControls = useAnimation();
   const [activeBin, setActiveBin] = useState<number | null>(null);
+  const trailRef = useRef<{ x: number; y: number }[]>([]);
+  const [trailDots, setTrailDots] = useState<{ x: number; y: number; id: number }[]>([]);
+  const trailIdRef = useRef(0);
 
   // Generate pegs
   const pegs = [];
@@ -40,39 +45,59 @@ export default function PlinkoBoard() {
     });
   }
 
+  // Check golden ball whenever history changes
+  useEffect(() => {
+    checkGoldenBall(history);
+  }, [history]);
+
+  // T key toggles tilt
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 't' || e.key === 'T') toggleTilt();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [toggleTilt]);
+
   useEffect(() => {
     if (status === 'ANIMATING' && path) {
       animateBall(path);
     } else if (status === 'IDLE') {
-      // Reset ball to start
       ballControls.set({ x: 0, y: START_Y, opacity: 0 });
       setActiveBin(null);
+      setTrailDots([]);
     }
   }, [status, path]);
 
+  const spawnTrailDot = (x: number, y: number) => {
+    if (!goldenBall) return;
+    const id = trailIdRef.current++;
+    setTrailDots(prev => [...prev.slice(-20), { x, y, id }]);
+  };
+
   const animateBall = async (path: number[]) => {
     setActiveBin(null);
+    setTrailDots([]);
     await ballControls.set({ x: 0, y: START_Y, opacity: 1 });
 
     let currentPos = 0;
-    
-    // Drop to first peg
+
     await ballControls.start({
       x: 0,
       y: 0,
       transition: { duration: 0.2, ease: "easeIn" }
     });
+    spawnTrailDot(250, 50);
 
-    // Traverse rows
     for (let r = 0; r < ROWS; r++) {
       const decision = path[r];
       currentPos += decision;
-      
+
       const nextX = (currentPos - (r + 1) / 2) * SPACING_X;
       const nextY = (r + 1) * SPACING_Y;
 
-      // Play tick sound here if available
       playTickSound();
+      spawnTrailDot(250 + nextX, 50 + nextY);
 
       await ballControls.start({
         x: nextX,
@@ -86,10 +111,9 @@ export default function PlinkoBoard() {
       });
     }
 
-    // Drop into bin
     const finalX = (currentPos - ROWS / 2) * SPACING_X;
     const finalY = ROWS * SPACING_Y + 40;
-    
+
     await ballControls.start({
       x: finalX,
       y: finalY,
@@ -97,17 +121,18 @@ export default function PlinkoBoard() {
     });
 
     setActiveBin(currentPos);
-    
-    // Confetti!
+
     const rect = document.getElementById(`bin-${currentPos}`)?.getBoundingClientRect();
     if (rect) {
       const x = (rect.left + rect.width / 2) / window.innerWidth;
       const y = (rect.top + rect.height / 2) / window.innerHeight;
       confetti({
-        particleCount: 50,
+        particleCount: goldenBall ? 120 : 50,
         spread: 60,
         origin: { x, y },
-        colors: ['#FFC107', '#FF9800', '#4CAF50']
+        colors: goldenBall
+          ? ['#FFD700', '#FFA500', '#FFEC00', '#fff']
+          : ['#FFC107', '#FF9800', '#4CAF50']
       });
     }
 
@@ -117,7 +142,6 @@ export default function PlinkoBoard() {
   };
 
   const playTickSound = () => {
-    // Simple synth tick using Web Audio API if enabled
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
@@ -133,15 +157,49 @@ export default function PlinkoBoard() {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.05);
-    } catch(e) {
+    } catch (e) {
       // ignore
     }
   };
 
   return (
-    <div className="relative w-full max-w-2xl flex flex-col items-center justify-start p-2 sm:p-8 bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden h-[450px] sm:h-[550px] md:h-[700px]">
-      
-      {/* TILT mode vintage overlay could go here */}
+    <div
+      className="relative w-full max-w-2xl flex flex-col items-center justify-start p-2 sm:p-8 bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden h-[450px] sm:h-[550px] md:h-[700px]"
+      style={{
+        transform: tiltMode ? `rotate(${tiltAngle}deg)` : undefined,
+        transition: 'transform 0.4s ease',
+      }}
+    >
+      {/* TILT vintage overlay */}
+      {tiltMode && (
+        <div
+          className="pointer-events-none absolute inset-0 z-30 rounded-3xl"
+          style={{
+            background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)',
+            mixBlendMode: 'multiply',
+          }}
+        />
+      )}
+      {tiltMode && (
+        <div
+          className="pointer-events-none absolute inset-0 z-30 rounded-3xl"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%)',
+          }}
+        />
+      )}
+      {tiltMode && (
+        <span className="absolute top-3 left-1/2 -translate-x-1/2 z-40 text-xs font-mono text-amber-400 opacity-70 tracking-widest uppercase select-none">
+          ★ TILT ★
+        </span>
+      )}
+
+      {/* Golden ball indicator */}
+      {goldenBall && status === 'IDLE' && (
+        <span className="absolute top-3 right-4 z-40 text-xs font-mono text-yellow-300 animate-pulse select-none">
+          ✦ Golden Ball
+        </span>
+      )}
 
       <div className="relative transform origin-top scale-[0.6] sm:scale-75 md:scale-100" style={{ width: 500, height: 600 }}>
         {/* Pegs */}
@@ -154,6 +212,26 @@ export default function PlinkoBoard() {
               height: 10,
               left: 250 + peg.x - 5,
               top: 50 + peg.y - 5
+            }}
+          />
+        ))}
+
+        {/* Golden trail dots */}
+        {goldenBall && trailDots.map(dot => (
+          <motion.div
+            key={dot.id}
+            initial={{ opacity: 0.8, scale: 1 }}
+            animate={{ opacity: 0, scale: 0.3 }}
+            transition={{ duration: 0.6 }}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: 8,
+              height: 8,
+              left: dot.x - 4,
+              top: dot.y - 4,
+              background: 'radial-gradient(circle, #FFD700, #FFA500)',
+              boxShadow: '0 0 6px #FFD700',
+              zIndex: 15,
             }}
           />
         ))}
@@ -188,12 +266,18 @@ export default function PlinkoBoard() {
         <motion.div
           animate={ballControls}
           initial={{ x: 0, y: START_Y, opacity: 0 }}
-          className="absolute rounded-full bg-amber-400 shadow-[0_0_15px_#fbbf24] z-20"
+          className="absolute rounded-full z-20"
           style={{
             width: 14,
             height: 14,
-            left: 250 - 7, // centered
-            top: 50 - 7
+            left: 250 - 7,
+            top: 50 - 7,
+            background: goldenBall
+              ? 'radial-gradient(circle at 35% 35%, #fff7a0, #FFD700 50%, #b8860b)'
+              : '#fbbf24',
+            boxShadow: goldenBall
+              ? '0 0 18px 4px #FFD700, 0 0 6px #fff'
+              : '0 0 15px #fbbf24',
           }}
         />
       </div>
@@ -206,7 +290,6 @@ export default function PlinkoBoard() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

@@ -1,54 +1,172 @@
-# Plinko Lab (Provably Fair)
+# Plinko Lab — Provably Fair
 
-A full-stack, provably-fair deterministic Plinko game powered by a commit-reveal RNG protocol.
+A full-stack provably-fair Plinko game built with Next.js 16, Prisma/PostgreSQL, and a deterministic Xorshift32 engine.
+
+## Links
+
+- Live app: https://daphnis-assignment.vercel.app
+- Verifier page: https://daphnis-assignment.vercel.app/verify
+- Example round permalink (paste any revealed round's seeds into the verifier):
+  `https://daphnis-assignment.vercel.app/verify?serverSeed=<serverSeed>&clientSeed=<clientSeed>&nonce=<nonce>&dropColumn=<col>`
+
+---
 
 ## How to run locally
 
-### Prisma Setup
-Since we use PostgreSQL with Prisma, make sure your `.env` contains:
+### Prerequisites
+
+- Node.js 20.9+
+- PostgreSQL (or use the provided Docker Compose)
+
+### 1. Start the database
+
+```bash
+docker-compose up -d
+```
+
+### 2. Environment variables
+
+Copy `.env` and set:
+
 ```env
 DATABASE_URL="postgresql://plinko_admin:plinko_password@localhost:5432/plinko_db?schema=public"
 ```
-Or pointing to your cloud instance.
-Generate schema and push to your database using:
-```bash
-npx prisma generate
-npx prisma db push
-```
 
-### Dev Server
+### 3. Install & migrate
+
 ```bash
 npm install
-npm run dev
+npx prisma generate
+npx prisma migrate deploy
 ```
-Navigate to `http://localhost:3000`.
 
-## Architecture overview
-- **Frontend**: Next.js 14+ App Router, React, Tailwind CSS, Framer Motion (animations), Canvas Confetti.
-- **Backend API**: Next.js Serverless API endpoints handling round states (`CREATE`, `STARTED`, `REVEALED`).
-- **Database**: PostgreSQL with Prisma.
-- **Fairness Engine**: Contains `Xorshift32` implementation for seeding arrays of probabilities deterministically off `combinedSeed`.
+### 4. Run
+
+```bash
+npm run dev
+# → http://localhost:3000
+```
+
+### 5. Tests
+
+```bash
+npm test
+```
+
+---
+
+## Architecture
+
+```
+Browser (Next.js Client Components)
+  │  Zustand store (store.ts) — game state machine
+  │
+  ▼
+Next.js App Router API Routes (src/app/api/)
+  ├── POST /api/rounds/commit      — generate serverSeed + nonce, return commitHex
+  ├── POST /api/rounds/[id]/start  — accept clientSeed, run fairness engine, store path
+  ├── POST /api/rounds/[id]/reveal — flip status to REVEALED, expose serverSeed
+  ├── GET  /api/rounds/[id]        — fetch round details
+  ├── GET  /api/rounds             — list revealed rounds (history)
+  └── GET  /api/verify             — stateless re-computation for verification
+  │
+  ▼
+Prisma ORM → PostgreSQL
+  Round model: id, status, serverSeed, clientSeed, nonce, commitHex,
+               combinedSeed, pegMapHash, dropColumn, binIndex,
+               payoutMultiplier, betCents, pathJson, rows, revealedAt
+```
+
+**Key libraries:** framer-motion (ball animation), canvas-confetti, Zustand, Tailwind CSS v4, Lucide icons.
+
+---
 
 ## Fairness Spec
-The fairness protocol uses a **Commit-Reveal scheme**:
-1. Before the round, the server generates a cryptographically random `serverSeed` (stored securely) and a `nonce` (`actualNonce`).
-2. Server responds with a SHA256 `commitHex = SHA256(serverSeed:nonce)`.
-3. The client inputs their own `clientSeed` and starts the game.
-4. Server computes `combinedSeed = SHA256(serverSeed:clientSeed:nonce)`.
-5. The `combinedSeed` seeds our mathematical deterministic `Xorshift32` Plinko engine. Paths and multipliers are extracted.
-6. Server reveals the `serverSeed`. 
-7. Anyone can deterministically trace the output path via the `/verify` page!
 
-## AI Usage
-The codebase was architected, written, and validated extensively using Agentic AI assistance.
-- **Plan Phase**: Formulated the commit-reveal schema and App Router logic mapping.
-- **Execution Phase**: 
-  - Iteratively drafted Prisma schema + backend Next.js API endpoints.
-  - Corrected imports and TypeScript Promise issues in App Router APIs via trial and error.
-  - Used `eslint` and `Next.js` build outputs locally to resolve typing issues.
+### Commit-Reveal Protocol
+
+1. **Commit** — Server generates `serverSeed = crypto.randomBytes(32)` and `nonce = crypto.randomBytes(8)`. Returns `commitHex = SHA256(serverSeed:nonce)` to the client. The serverSeed is stored but never sent.
+2. **Start** — Client provides `clientSeed`. Server computes `combinedSeed = SHA256(serverSeed:clientSeed:nonce)` and runs the engine.
+3. **Reveal** — After animation, server exposes `serverSeed`. Anyone can recompute `commitHex` to confirm it was not changed post-bet.
+
+### Deterministic Engine
+
+```
+combinedSeed  →  first 4 bytes as uint32  →  Xorshift32 PRNG seed
+```
+
+**Xorshift32** (period 2³²−1):
+```
+x ^= x << 13
+x ^= x >>> 17
+x ^= x << 5
+```
+
+**Peg map** — For each of 12 rows, for each peg in that row, draw one float from the PRNG and compute:
+```
+rawBias  = 0.5 + (nextFloat() − 0.5) × 0.2   // range [0.4, 0.6]
+bias     = round(rawBias × 1_000_000) / 1_000_000
+```
+The bias is the probability of the ball going **left** at that peg. The full map is hashed: `pegMapHash = SHA256(JSON.stringify(pegMap))`.
+
+**Path simulation** — Starting at position 0, for each row:
+```
+adj      = (rows/2 − dropColumn) × 0.01   // dropColumn shifts distribution
+adjBias  = clamp(bias + adj, 0, 1)
+rnd      = nextFloat()
+decision = rnd < adjBias ? LEFT(0) : RIGHT(1)
+```
+`binIndex = sum(decisions)` — the final landing bin (0–12).
+
+**Payout table** (symmetric, 13 bins):
+```
+[10, 5, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 5, 10]
+```
+
+**Verification** — The `/verify` page (and `/api/verify`) re-runs the entire computation client-side from the revealed seeds and confirms `binIndex` and `payoutMultiplier` match the stored round.
+
+**Known test vector:**
+```
+serverSeed  = b2a5f3f32a4d9c6ee7a8c1d33456677890abcdeffedcba0987654321ffeeddcc
+nonce       = 42
+clientSeed  = candidate-hello
+commitHex   = bb9acdc67f3f18f3345236a01f0e5072596657a9005c7d8a22cff061451a6b34
+combinedSeed= e1dddf77de27d395ea2be2ed49aa2a59bd6bf12ee8d350c16c008abd406c07e0
+pegMap[0]   = [0.422123]
+binIndex    = 6  (dropColumn=6)
+```
+
+---
+
+## Where / How AI Was Used
+
+All code was written with Kiro (AI coding assistant). Key interactions:
+
+- **Architecture** — Prompted for commit-reveal schema design and Next.js 16 App Router API route structure.
+- **Fairness engine** — Iteratively validated Xorshift32 output against the known test vector (`pegMap[0][0] === 0.422123`). Caught and fixed an inverted `dropColumn` bias sign (was `dropColumn − rows/2`, should be `rows/2 − dropColumn`).
+- **API routes** — AI drafted all route handlers; async `params` pattern for Next.js 16 was applied correctly from the start.
+- **Frontend** — Framer Motion animation sequence, Zustand state machine, and Tailwind layout all AI-generated with manual review.
+- **Easter eggs** — TILT mode (press T) and Golden Ball (3 consecutive center landings) added via a separate `easterEggs.ts` Zustand store.
+- **Tests** — AI wrote the full vitest suite; the bias direction test caught the real engine bug above.
+
+What was kept vs changed: the core Xorshift32 math and SHA256 chaining were kept as-is after test vector validation. The `dropColumn` bias sign was corrected. A dead `nonce = '1'` variable in the commit route was removed. The verifier was extended to show `payoutMultiplier`.
+
+---
 
 ## Time Log
-- 0:00 - 1:00 : Architecture formulation, Docker setup, and Next.js boilerplate mapping.
-- 1:00 - 4:00 : Xorshift32 implementation, discrete plinko maths based strictly on test vectors (matching exactly `0.422123` via Math.round!).
-- 4:00 - 6:00 : API endpoints implementations.
-- 6:00 - 8:00 : Frontend polish, interactive framer-motion UI, and Verifier visual page hookup.
+
+| Time | Work |
+|------|------|
+| 0:00–1:00 | Architecture, Docker/Prisma setup, Next.js 16 boilerplate |
+| 1:00–3:00 | Xorshift32 + peg map + path engine, test vector validation |
+| 3:00–5:00 | API routes (commit/start/reveal/verify), Prisma schema |
+| 5:00–7:00 | Frontend: Zustand store, Framer Motion animation, Controls UI |
+| 7:00–8:00 | Verifier page, History table, provably-fair UX |
+| 8:00–9:00 | Easter eggs (TILT, Golden Ball), vitest suite, README |
+
+**What I'd do with more time:**
+- Per-user nonce incrementing (currently random per round)
+- WebSocket live multiplayer spectating
+- More robust balance system with server-side enforcement
+- Expand test coverage to include API route integration tests
+- Add `aria-live` regions for the animation result announcement

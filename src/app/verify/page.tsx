@@ -137,6 +137,13 @@ function VerifyFormContent() {
                     </div>
                     <div className="text-3xl font-black text-amber-400">{result.binIndex}</div>
                   </div>
+                  <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 flex justify-between items-center">
+                    <div>
+                      <div className="text-xs text-zinc-500 uppercase font-semibold mb-1">Payout Multiplier</div>
+                      <div className="text-zinc-400 text-xs">From symmetric payout table</div>
+                    </div>
+                    <div className={`text-3xl font-black ${result.payoutMultiplier >= 1 ? 'text-green-400' : 'text-zinc-400'}`}>{result.payoutMultiplier}x</div>
+                  </div>
                 </div>
               </div>
             ) : (

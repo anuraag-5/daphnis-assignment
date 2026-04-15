@@ -4,6 +4,7 @@ import {
   generateCombinedSeed,
   generateCommitHex,
   simulatePath,
+  PAYOUT_MULTIPLIERS,
 } from "../../../lib/fairness";
 
 export async function GET(request: Request) {
@@ -35,12 +36,15 @@ export async function GET(request: Request) {
     const { pegMapHash, pegMap, prng } = buildPegMap(combinedSeed, 12);
     const { binIndex, path } = simulatePath(pegMap, prng, dropColumn, 12);
 
+    const payoutMultiplier = PAYOUT_MULTIPLIERS[binIndex] ?? 0;
+
     return NextResponse.json({
       commitHex,
       combinedSeed,
       pegMapHash,
       binIndex,
       path,
+      payoutMultiplier,
     });
   } catch (error: any) {
     console.error(error);

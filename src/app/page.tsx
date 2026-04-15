@@ -29,6 +29,7 @@ export default function Home() {
               <li>2. Adjust the drop column (0-12) to influence bias.</li>
               <li>3. Click Drop to generate a provably fair result.</li>
               <li>4. Use the Verifier to mathematically prove the game.</li>
+              <li className="text-zinc-600 italic">Tip: press <kbd className="px-1 py-0.5 bg-zinc-800 rounded text-zinc-400 not-italic">T</kbd> for a surprise.</li>
             </ul>
           </div>
         </div>
