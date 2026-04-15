@@ -1,4 +1,4 @@
-# Plinko Lab — Provably Fair
+# Plinko Lab -- Provably Fair
 
 A full-stack provably-fair Plinko game built with Next.js 16, Prisma/PostgreSQL, and a deterministic Xorshift32 engine.
 
@@ -59,16 +59,16 @@ npm test
 
 ```
 Browser (Next.js Client Components)
-  │  Zustand store (store.ts) — game state machine
+  │  Zustand store (store.ts) : game state machine
   │
   ▼
 Next.js App Router API Routes (src/app/api/)
-  ├── POST /api/rounds/commit      — generate serverSeed + nonce, return commitHex
-  ├── POST /api/rounds/[id]/start  — accept clientSeed, run fairness engine, store path
-  ├── POST /api/rounds/[id]/reveal — flip status to REVEALED, expose serverSeed
-  ├── GET  /api/rounds/[id]        — fetch round details
-  ├── GET  /api/rounds             — list revealed rounds (history)
-  └── GET  /api/verify             — stateless re-computation for verification
+  ├── POST /api/rounds/commit      : generate serverSeed + nonce, return commitHex
+  ├── POST /api/rounds/[id]/start  : accept clientSeed, run fairness engine, store path
+  ├── POST /api/rounds/[id]/reveal : flip status to REVEALED, expose serverSeed
+  ├── GET  /api/rounds/[id]        : fetch round details
+  ├── GET  /api/rounds             : list revealed rounds (history)
+  └── GET  /api/verify             : stateless re-computation for verification
   │
   ▼
 Prisma ORM → PostgreSQL
@@ -142,12 +142,12 @@ binIndex    = 6  (dropColumn=6)
 
 All code was written with Kiro (AI coding assistant). Key interactions:
 
-- **Architecture** — Prompted for commit-reveal schema design and Next.js 16 App Router API route structure.
-- **Fairness engine** — Iteratively validated Xorshift32 output against the known test vector (`pegMap[0][0] === 0.422123`). Caught and fixed an inverted `dropColumn` bias sign (was `dropColumn − rows/2`, should be `rows/2 − dropColumn`).
-- **API routes** — AI drafted all route handlers; async `params` pattern for Next.js 16 was applied correctly from the start.
-- **Frontend** — Framer Motion animation sequence, Zustand state machine, and Tailwind layout all AI-generated with manual review.
-- **Easter eggs** — TILT mode (press T) and Golden Ball (3 consecutive center landings) added via a separate `easterEggs.ts` Zustand store.
-- **Tests** — AI wrote the full vitest suite; the bias direction test caught the real engine bug above.
+- **Architecture** : Prompted for commit-reveal schema design and Next.js 16 App Router API route structure.
+- **Fairness engine** : Iteratively validated Xorshift32 output against the known test vector (`pegMap[0][0] === 0.422123`). Caught and fixed an inverted `dropColumn` bias sign (was `dropColumn − rows/2`, should be `rows/2 − dropColumn`).
+- **API routes** : AI drafted all route handlers; async `params` pattern for Next.js 16 was applied correctly from the start.
+- **Frontend** : Framer Motion animation sequence, Zustand state machine, and Tailwind layout all AI-generated with manual review.
+- **Easter eggs** : TILT mode (press T) and Golden Ball (3 consecutive center landings) added via a separate `easterEggs.ts` Zustand store.
+- **Tests** : AI wrote the full vitest suite; the bias direction test caught the real engine bug above.
 
 What was kept vs changed: the core Xorshift32 math and SHA256 chaining were kept as-is after test vector validation. The `dropColumn` bias sign was corrected. A dead `nonce = '1'` variable in the commit route was removed. The verifier was extended to show `payoutMultiplier`.
 
