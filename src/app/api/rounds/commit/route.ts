@@ -1,9 +1,8 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
+import { prisma } from '@/config/db';
+import { NextResponse } from 'next/server';
 import { generateCommitHex } from '../../../../lib/fairness';
 
-const prisma = new PrismaClient();
 
 export async function POST() {
   try {

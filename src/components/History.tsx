@@ -63,7 +63,7 @@ export default function History() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <Link 
+                  <Link
                     href={`/verify?serverSeed=${round.serverSeed}&clientSeed=${round.clientSeed}&nonce=${round.nonce}&dropColumn=${round.dropColumn}`}
                     className="flex items-center space-x-1 text-emerald-400 hover:text-emerald-300"
                   >

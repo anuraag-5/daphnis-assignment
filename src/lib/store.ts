@@ -138,7 +138,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       const res = await fetch('/api/rounds?limit=10');
       const data = await res.json();
       // only show revealed rounds in history
-      set({ history: data.filter((r: any) => r.status === 'REVEALED') });
+      const rounds = Array.isArray(data) ? data : [];
+      set({ history: rounds.filter((r: any) => r.status === 'REVEALED') });
     } catch (e) {
       console.error(e);
     }
