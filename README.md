@@ -153,17 +153,6 @@ What was kept vs changed: the core Xorshift32 math and SHA256 chaining were kept
 
 ---
 
-## Time Log
-
-| Time | Work |
-|------|------|
-| 0:00–1:00 | Architecture, Docker/Prisma setup, Next.js 16 boilerplate |
-| 1:00–3:00 | Xorshift32 + peg map + path engine, test vector validation |
-| 3:00–5:00 | API routes (commit/start/reveal/verify), Prisma schema |
-| 5:00–7:00 | Frontend: Zustand store, Framer Motion animation, Controls UI |
-| 7:00–8:00 | Verifier page, History table, provably-fair UX |
-| 8:00–9:00 | Easter eggs (TILT, Golden Ball), vitest suite, README |
-
 **What I'd do with more time:**
 - Per-user nonce incrementing (currently random per round)
 - WebSocket live multiplayer spectating
