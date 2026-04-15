@@ -85,9 +85,9 @@ Prisma ORM → PostgreSQL
 
 ### Commit-Reveal Protocol
 
-1. **Commit** — Server generates `serverSeed = crypto.randomBytes(32)` and `nonce = crypto.randomBytes(8)`. Returns `commitHex = SHA256(serverSeed:nonce)` to the client. The serverSeed is stored but never sent.
-2. **Start** — Client provides `clientSeed`. Server computes `combinedSeed = SHA256(serverSeed:clientSeed:nonce)` and runs the engine.
-3. **Reveal** — After animation, server exposes `serverSeed`. Anyone can recompute `commitHex` to confirm it was not changed post-bet.
+1. **Commit** : Server generates `serverSeed = crypto.randomBytes(32)` and `nonce = crypto.randomBytes(8)`. Returns `commitHex = SHA256(serverSeed:nonce)` to the client. The serverSeed is stored but never sent.
+2. **Start** : Client provides `clientSeed`. Server computes `combinedSeed = SHA256(serverSeed:clientSeed:nonce)` and runs the engine.
+3. **Reveal** : After animation, server exposes `serverSeed`. Anyone can recompute `commitHex` to confirm it was not changed post-bet.
 
 ### Deterministic Engine
 
@@ -102,7 +102,7 @@ x ^= x >>> 17
 x ^= x << 5
 ```
 
-**Peg map** — For each of 12 rows, for each peg in that row, draw one float from the PRNG and compute:
+**Peg map** -- For each of 12 rows, for each peg in that row, draw one float from the PRNG and compute:
 ```
 rawBias  = 0.5 + (nextFloat() − 0.5) × 0.2   // range [0.4, 0.6]
 bias     = round(rawBias × 1_000_000) / 1_000_000
@@ -123,7 +123,7 @@ decision = rnd < adjBias ? LEFT(0) : RIGHT(1)
 [10, 5, 2, 1.5, 1, 0.5, 0.2, 0.5, 1, 1.5, 2, 5, 10]
 ```
 
-**Verification** — The `/verify` page (and `/api/verify`) re-runs the entire computation client-side from the revealed seeds and confirms `binIndex` and `payoutMultiplier` match the stored round.
+**Verification** -- The `/verify` page (and `/api/verify`) re-runs the entire computation client-side from the revealed seeds and confirms `binIndex` and `payoutMultiplier` match the stored round.
 
 **Known test vector:**
 ```
