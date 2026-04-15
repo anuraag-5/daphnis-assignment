@@ -21,14 +21,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       return NextResponse.json({ error: 'Round already started or revealed' }, { status: 400 });
     }
 
-    // Fairness calculations
     const combinedSeed = generateCombinedSeed(round.serverSeed!, clientSeed, round.nonce);
     const { pegMap, pegMapHash, prng } = buildPegMap(combinedSeed, round.rows);
     const { binIndex, path } = simulatePath(pegMap, prng, dropColumn, round.rows);
 
     const payoutMultiplier = getPayoutMultiplier(binIndex);
 
-    // Update round
     round = await prisma.round.update({
       where: { id },
       data: {
@@ -48,7 +46,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       roundId: round.id,
       pegMapHash: round.pegMapHash,
       rows: round.rows,
-      // return the outcome immediately for the UI to animate
       binIndex: round.binIndex,
       path: path
     });

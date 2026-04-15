@@ -18,7 +18,6 @@ export default function Home() {
       </header>
 
       <div className="flex flex-col-reverse lg:flex-row gap-8 items-center lg:items-start justify-center">
-        {/* Left: Controls */}
         <div className="w-full lg:w-96 shrink-0">
           <Controls />
 
@@ -34,7 +33,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right: Board */}
         <div className="grow flex flex-col items-center w-full">
           <PlinkoBoard />
           <p className="mt-8 text-zinc-500 text-sm text-center max-w-sm">

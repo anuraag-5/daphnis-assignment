@@ -27,9 +27,9 @@ interface GameState {
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
-  balance: 1000, // Demo balance
+  balance: 1000,
   betAmount: 10,
-  dropColumn: 6, // center
+  dropColumn: 6,
   status: 'IDLE',
   currentRoundId: null,
   serverSeed: null,
@@ -61,13 +61,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         currentRoundId: data.roundId,
         commitHex: data.commitHex,
         nonce: data.nonce,
-        status: 'IDLE', // ready to start
+        status: 'IDLE',
         serverSeed: null,
         path: null,
         binIndex: null,
         payoutMultiplier: null,
       });
-      // automatically start
       await get().startRound();
     } catch (err) {
       console.error(err);
@@ -109,7 +108,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       const res = await fetch(`/api/rounds/${currentRoundId}/reveal`, { method: 'POST' });
       const revealData = await res.json();
 
-      // fetch full details to get multiplier
       const detailsRes = await fetch(`/api/rounds/${currentRoundId}`);
       const details = await detailsRes.json();
       
@@ -123,7 +121,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         history: [details, ...state.history].slice(0, 10),
       }));
 
-      // allow next round
       setTimeout(() => {
         set({ status: 'IDLE' });
       }, 3000);
@@ -137,7 +134,6 @@ export const useGameStore = create<GameState>((set, get) => ({
     try {
       const res = await fetch('/api/rounds?limit=10');
       const data = await res.json();
-      // only show revealed rounds in history
       const rounds = Array.isArray(data) ? data : [];
       set({ history: rounds.filter((r: any) => r.status === 'REVEALED') });
     } catch (e) {

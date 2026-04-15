@@ -14,7 +14,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       return NextResponse.json({ error: 'Round must be in STARTED status to reveal' }, { status: 400 });
     }
 
-    // Reveal serverSeed
     round = await prisma.round.update({
       where: { id },
       data: {

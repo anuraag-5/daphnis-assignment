@@ -8,7 +8,7 @@ interface EasterEggState {
   checkGoldenBall: (history: any[]) => void;
 }
 
-const CENTER_BIN = 6; // ROWS / 2
+const CENTER_BIN = 6;
 
 export const useEasterEggs = create<EasterEggState>((set, get) => ({
   tiltMode: false,

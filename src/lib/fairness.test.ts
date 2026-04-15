@@ -10,7 +10,6 @@ import {
   PAYOUT_MULTIPLIERS,
 } from './fairness';
 
-// ── Known test vectors ────────────────────────────────────────────────────────
 const SERVER_SEED = 'b2a5f3f32a4d9c6ee7a8c1d33456677890abcdeffedcba0987654321ffeeddcc';
 const CLIENT_SEED = 'candidate-hello';
 const NONCE = '42';
@@ -20,7 +19,6 @@ describe('Xorshift32', () => {
     const prng = new Xorshift32(0xdeadbeef);
     const first = prng.next();
     const second = prng.next();
-    // Same seed → same sequence
     const prng2 = new Xorshift32(0xdeadbeef);
     expect(prng2.next()).toBe(first);
     expect(prng2.next()).toBe(second);
@@ -96,7 +94,6 @@ describe('buildPegMap', () => {
     const combined = generateCombinedSeed(SERVER_SEED, CLIENT_SEED, NONCE);
     const { pegMapHash } = buildPegMap(combined, 12);
     expect(pegMapHash).toHaveLength(64);
-    // Deterministic: same input → same hash
     const { pegMapHash: pegMapHash2 } = buildPegMap(combined, 12);
     expect(pegMapHash).toBe(pegMapHash2);
   });
@@ -157,7 +154,7 @@ describe('getPayoutMultiplier', () => {
   it('returns correct multipliers for edge bins', () => {
     expect(getPayoutMultiplier(0)).toBe(10);
     expect(getPayoutMultiplier(12)).toBe(10);
-    expect(getPayoutMultiplier(6)).toBe(0.2); // center is lowest
+    expect(getPayoutMultiplier(6)).toBe(0.2);
   });
 
   it('payout table is symmetric', () => {

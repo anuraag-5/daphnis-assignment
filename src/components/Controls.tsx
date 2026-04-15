@@ -36,7 +36,6 @@ export default function Controls() {
   return (
     <div className="w-full max-w-sm flex flex-col space-y-6 bg-zinc-900 border border-zinc-800 p-6 rounded-3xl shadow-xl">
 
-      {/* Balance & Mute */}
       <div className="flex justify-between items-center bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50">
         <span className="text-zinc-400 font-medium text-sm">Balance</span>
         <div className="flex items-center space-x-2 text-amber-400 font-bold text-xl">
@@ -45,7 +44,6 @@ export default function Controls() {
         </div>
       </div>
 
-      {/* Bet Amount */}
       <div className="space-y-2">
         <label className="text-zinc-400 text-xs font-semibold uppercase tracking-wider pl-1">Bet Amount</label>
         <div className="flex bg-zinc-800 rounded-xl overflow-hidden border border-zinc-700 focus-within:border-amber-400/50 transition-colors">
@@ -66,7 +64,6 @@ export default function Controls() {
         </div>
       </div>
 
-      {/* Drop Column Selection */}
       <div className="space-y-2">
         <label className="text-zinc-400 text-xs font-semibold uppercase tracking-wider pl-1">Bias / Drop Column (0-12)</label>
         <div className="flex items-center justify-between bg-zinc-800 rounded-xl p-2 border border-zinc-700">
@@ -88,7 +85,6 @@ export default function Controls() {
         </div>
       </div>
 
-      {/* Play Button */}
       <button
         onClick={handleDrop}
         disabled={isPlaying || betAmount > balance || betAmount <= 0}

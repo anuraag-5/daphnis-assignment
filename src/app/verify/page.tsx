@@ -103,7 +103,6 @@ function VerifyFormContent() {
             {error && <div className="text-red-400 text-sm p-3 bg-red-900/20 border border-red-900/50 rounded-lg">{error}</div>}
           </form>
 
-          {/* Results */}
           <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl flex flex-col">
             <h3 className="text-lg font-bold text-white mb-6 border-b border-zinc-800 pb-4">Verification Result</h3>
 
@@ -157,7 +156,6 @@ function VerifyFormContent() {
           </div>
         </div>
 
-        {/* History Table */}
         <div className="mt-8">
           <History />
         </div>

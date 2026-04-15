@@ -21,7 +21,6 @@ export default function PlinkoBoard() {
   const [trailDots, setTrailDots] = useState<{ x: number; y: number; id: number }[]>([]);
   const trailIdRef = useRef(0);
 
-  // Generate pegs
   const pegs = [];
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c <= r; c++) {
@@ -33,7 +32,6 @@ export default function PlinkoBoard() {
     }
   }
 
-  // Generate bins
   const bins = [];
   for (let c = 0; c <= ROWS; c++) {
     bins.push({
@@ -45,12 +43,10 @@ export default function PlinkoBoard() {
     });
   }
 
-  // Check golden ball whenever history changes
   useEffect(() => {
     checkGoldenBall(history);
   }, [history]);
 
-  // T key toggles tilt
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 't' || e.key === 'T') toggleTilt();
@@ -158,7 +154,6 @@ export default function PlinkoBoard() {
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.05);
     } catch (e) {
-      // ignore
     }
   };
 
@@ -170,7 +165,6 @@ export default function PlinkoBoard() {
         transition: 'transform 0.4s ease',
       }}
     >
-      {/* TILT vintage overlay */}
       {tiltMode && (
         <div
           className="pointer-events-none absolute inset-0 z-30 rounded-3xl"
@@ -194,7 +188,6 @@ export default function PlinkoBoard() {
         </span>
       )}
 
-      {/* Golden ball indicator */}
       {goldenBall && status === 'IDLE' && (
         <span className="absolute top-3 right-4 z-40 text-xs font-mono text-yellow-300 animate-pulse select-none">
           ✦ Golden Ball
@@ -202,7 +195,7 @@ export default function PlinkoBoard() {
       )}
 
       <div className="relative transform origin-top scale-[0.6] sm:scale-75 md:scale-100" style={{ width: 500, height: 600 }}>
-        {/* Pegs */}
+       
         {pegs.map(peg => (
           <div
             key={peg.id}
@@ -216,7 +209,6 @@ export default function PlinkoBoard() {
           />
         ))}
 
-        {/* Golden trail dots */}
         {goldenBall && trailDots.map(dot => (
           <motion.div
             key={dot.id}
@@ -236,7 +228,6 @@ export default function PlinkoBoard() {
           />
         ))}
 
-        {/* Bins */}
         {bins.map(bin => {
           const isActive = activeBin === bin.index;
           return (
@@ -262,7 +253,6 @@ export default function PlinkoBoard() {
           );
         })}
 
-        {/* Ball */}
         <motion.div
           animate={ballControls}
           initial={{ x: 0, y: START_Y, opacity: 0 }}
@@ -281,8 +271,6 @@ export default function PlinkoBoard() {
           }}
         />
       </div>
-
-      {/* History Ribbon */}
       <div className="absolute top-4 right-4 flex space-x-2">
         {history.slice(0, 5).map((h, i) => (
           <div key={i} className={`px-2 py-1 bg-zinc-800 border border-zinc-700 text-xs rounded-md ${h.payoutMultiplier >= 1 ? 'text-green-400' : 'text-zinc-400'}`}>
